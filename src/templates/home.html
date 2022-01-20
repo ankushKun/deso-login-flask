@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+
+{% block main %}
+
+{% if data.loggedInKey %}
+<h3>Logged in as {{data.loggedInKey}}</h3>
+<button onclick="sendDiam()">send 1 💎 to weeblet</button>
+{% else %}
+<button onclick="login()">login</button>
+{% endif %}
+
+<script>
+    function sendDiam() {
+        const endpoint = "send-deso"
+        const payload = {
+            "Endpoint": endpoint,
+            "Data": {
+                "SenderPublicKeyBase58Check": '{{data.loggedInKey}}',
+                "RecipientPublicKeyOrUsername": '{{data.reciever}}',
+                "AmountNanos": 50000,
+                "MinFeeRateNanosPerKB": 1000
+            }
+        }
+        axios.post("/create-txn", payload)
+            .then((res) => {
+                const txnHex = res.data;
+                identityWindow = window.open(
+                    `https://identity.deso.org/approve?tx=${txnHex}`,
+                    null,
+                    "toolbar=no, width=800, height=1000, top=0, left=0"
+                );
+            })
+    }
+</script>
+{% endblock %}
